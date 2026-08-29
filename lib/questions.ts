@@ -41,6 +41,13 @@ export interface SelectOption {
   helpText?: string;
   /** When this option is selected, reveal a free-text field writing to `key`. */
   revealTextField?: { key: string; placeholder?: string };
+  /**
+   * When this option is selected, reveal a nested single-select writing to
+   * `key`. Nested options may themselves carry a `revealTextField` (one
+   * level deep only — nesting another `revealSelect` inside is unsupported
+   * since nothing currently needs it).
+   */
+  revealSelect?: { key: string; options: SelectOption[] };
 }
 
 export interface QuestionExample {
@@ -52,6 +59,8 @@ interface QuestionBase {
   id: string;
   section: QuestionSection;
   label: string;
+  /** Rendered as a prominent amber callout above helpText — for scope/eligibility caveats that must not be skimmed past. */
+  notice?: string;
   helpText?: string;
   /** Rendered as a bulleted list; use instead of, or alongside, helpText. */
   helpBullets?: string[];
@@ -153,41 +162,13 @@ const OUTCOME_LEARN_MORE = 'Full guide with examples: (coming soon)';
 export const QUESTIONS: Question[] = [
   // Eligibility
   {
-    id: 'q1_qualification_held',
-    section: 'eligibility',
-    key: 'educationRouteSelfReport',
-    type: 'single_select',
-    label: 'Which best describes the engineering qualification you hold?',
-    options: [
-      {
-        value: 'accredited',
-        label: 'An ECSA-accredited South African qualification',
-        helpText: 'E.g. an accredited BEng/BSc(Eng), or an accredited BTech built on an accredited National Diploma.',
-      },
-      {
-        value: 'washington_accord',
-        label: 'A qualification from a Washington Accord signatory country',
-      },
-      {
-        value: 'substantially_equivalent',
-        label: 'A different qualification, which ECSA has evaluated as substantially equivalent',
-      },
-      {
-        value: 'unknown',
-        label: 'Other / not sure',
-        revealTextField: {
-          key: 'otherQualificationName',
-          placeholder: 'e.g. BSc Mechanical Engineering, University of X',
-        },
-      },
-    ],
-  },
-  {
-    id: 'q2_institution',
+    id: 'q1_institution',
     section: 'eligibility',
     key: 'institutionSelection',
     type: 'single_select',
     label: 'Which institution did you qualify from?',
+    notice:
+      "This assessment currently covers BEng / BSc(Eng) graduates only. If you hold a BTech, diploma-based, or non-South African qualification, choose \"Other\" below.",
     helpText:
       "This list (from ECSA's E-20-PE) is just to help us tailor guidance. Picking one doesn't itself confirm accreditation of your specific programme and year.",
     options: [
@@ -198,28 +179,40 @@ export const QUESTIONS: Question[] = [
       })),
       {
         value: 'other',
-        label: 'Other / not listed',
-        revealTextField: { key: 'institutionNameOther', placeholder: 'Institution name' },
+        label: 'Other / different qualification',
+        revealTextField: { key: 'institutionNameOther', placeholder: 'Institution name (optional)' },
+        revealSelect: {
+          key: 'educationRouteOther',
+          options: [
+            {
+              value: 'washington_accord',
+              label: 'A qualification from a Washington Accord signatory country',
+            },
+            {
+              value: 'substantially_equivalent',
+              label: 'A different qualification, which ECSA has evaluated as substantially equivalent',
+            },
+            {
+              value: 'unknown',
+              label: 'Other / not sure',
+              revealTextField: {
+                key: 'otherQualificationName',
+                placeholder: 'e.g. BSc Mechanical Engineering, University of X',
+              },
+            },
+          ],
+        },
       },
     ],
   },
   {
-    id: 'q2b_qualification_date',
+    id: 'q2_qualification_date',
     section: 'eligibility',
     key: 'qualificationDate',
     type: 'month',
     label: 'Month and year you graduated (your qualification was formally conferred)',
     helpText:
       'ECSA counts your training and experience period from the date you met the educational requirement, not from when you started working.',
-  },
-  {
-    id: 'q3_accredited_list_check',
-    section: 'eligibility',
-    key: 'onAccreditedList',
-    type: 'single_select',
-    label: "Have you checked that your qualification appears on ECSA's accredited list?",
-    helpText: 'TODO: link to the current ECSA accredited qualifications list before launch.',
-    options: YES_NO_NOT_SURE,
   },
 
   // Experience and responsibility

@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import type { CareerPhase } from '@/lib/scoring';
 import type { Question, SelectOption } from '@/lib/questions';
 
@@ -68,8 +69,16 @@ function toggleLevel(
 
 export function isQuestionAnswered(question: Question, form: Record<string, unknown>): boolean {
   switch (question.type) {
-    case 'single_select':
-      return form[question.key] !== undefined && form[question.key] !== '';
+    case 'single_select': {
+      const value = form[question.key];
+      if (value === undefined || value === '') return false;
+      const selected = question.options.find((option) => option.value === value);
+      if (selected?.revealSelect) {
+        const nestedValue = form[selected.revealSelect.key];
+        return nestedValue !== undefined && nestedValue !== '';
+      }
+      return true;
+    }
     case 'boolean':
       return form[question.key] !== undefined;
     case 'month':
@@ -93,6 +102,11 @@ export function isQuestionAnswered(question: Question, form: Record<string, unkn
 function QuestionExtras({ question }: { question: Question }) {
   return (
     <>
+      {question.notice && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 p-3">
+          <p className="text-sm text-amber-900">{question.notice}</p>
+        </div>
+      )}
       {question.helpText && <p className="text-sm text-navy/70">{question.helpText}</p>}
       {question.helpBullets && (
         <ul className="list-disc space-y-1 pl-5 text-sm text-navy/70">
@@ -122,26 +136,13 @@ export function QuestionCard({ question, form, onChange, onAutoAdvance }: Questi
       <QuestionExtras question={question} />
 
       {question.type === 'single_select' && (
-        <div className="flex flex-col gap-2">
-          {question.options.map((option) => (
-            <SingleSelectOption
-              key={option.value}
-              option={option}
-              selected={form[question.key] === option.value}
-              revealValue={option.revealTextField ? (form[option.revealTextField.key] as string) : undefined}
-              onSelect={() => {
-                onChange(question.key, option.value);
-                if (!option.revealTextField) onAutoAdvance?.(question.key, option.value);
-              }}
-              onRevealChange={
-                option.revealTextField
-                  ? (value) => onChange(option.revealTextField!.key, value)
-                  : undefined
-              }
-              revealPlaceholder={option.revealTextField?.placeholder}
-            />
-          ))}
-        </div>
+        <SingleSelectGroup
+          optionsKey={question.key}
+          options={question.options}
+          form={form}
+          onChange={onChange}
+          onAutoAdvance={onAutoAdvance}
+        />
       )}
 
       {question.type === 'boolean' && (
@@ -261,6 +262,53 @@ export function QuestionCard({ question, form, onChange, onAutoAdvance }: Questi
   );
 }
 
+function SingleSelectGroup({
+  optionsKey,
+  options,
+  form,
+  onChange,
+  onAutoAdvance,
+}: {
+  optionsKey: string;
+  options: SelectOption[];
+  form: Record<string, unknown>;
+  onChange: (key: string, value: unknown) => void;
+  onAutoAdvance?: (key: string, value: unknown) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      {options.map((option) => (
+        <SingleSelectOption
+          key={option.value}
+          option={option}
+          selected={form[optionsKey] === option.value}
+          revealValue={option.revealTextField ? (form[option.revealTextField.key] as string) : undefined}
+          onSelect={() => {
+            onChange(optionsKey, option.value);
+            if (!option.revealTextField && !option.revealSelect) onAutoAdvance?.(optionsKey, option.value);
+          }}
+          onRevealChange={
+            option.revealTextField ? (value) => onChange(option.revealTextField!.key, value) : undefined
+          }
+          revealPlaceholder={option.revealTextField?.placeholder}
+        >
+          {option.revealSelect && (
+            <div className="mt-2 pl-3">
+              <SingleSelectGroup
+                optionsKey={option.revealSelect.key}
+                options={option.revealSelect.options}
+                form={form}
+                onChange={onChange}
+                onAutoAdvance={onAutoAdvance}
+              />
+            </div>
+          )}
+        </SingleSelectOption>
+      ))}
+    </div>
+  );
+}
+
 function SingleSelectOption({
   option,
   selected,
@@ -268,6 +316,7 @@ function SingleSelectOption({
   onSelect,
   onRevealChange,
   revealPlaceholder,
+  children,
 }: {
   option: SelectOption;
   selected: boolean;
@@ -275,6 +324,7 @@ function SingleSelectOption({
   onSelect: () => void;
   onRevealChange: ((value: string) => void) | undefined;
   revealPlaceholder: string | undefined;
+  children?: ReactNode;
 }) {
   return (
     <div>
@@ -299,6 +349,7 @@ function SingleSelectOption({
           className={`${INPUT_CLASS} mt-2 w-full`}
         />
       )}
+      {selected && children}
     </div>
   );
 }

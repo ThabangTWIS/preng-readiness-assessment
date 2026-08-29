@@ -28,19 +28,20 @@ function asRefereeCount(value: unknown): number {
 }
 
 /**
- * Q3 ("is your qualification on ECSA's accredited list?") only bears on the
- * self-reported 'accredited' route (R-01 Schedule 1 / §5.1.1(a)) — a
- * Washington Accord or case-by-case-equivalent route isn't checked against
- * that list. An applicant who isn't sure their qualification is on the list
- * hasn't established route (a), so they fall back to 'unknown' rather than
- * scoring as if they had.
+ * Picking a real institution from `institutionSelection` (sourced from
+ * ECSA's E-20-PE list, see lib/rules/v1.ts ACCREDITED_INSTITUTIONS) is
+ * itself the full signal for route (a) — R-01 Schedule 1 / §5.1.1(a). There
+ * is deliberately no separate confirmation question; the discipline/year
+ * mismatch risk this leaves uncaught is an accepted MVP limitation
+ * documented alongside ACCREDITED_INSTITUTIONS, not an oversight here.
+ *
+ * Choosing "other" reveals `educationRouteOther`, carrying the remaining
+ * routes (Washington Accord, substantially equivalent, or unknown/not sure).
  */
 function resolveEducationRoute(form: FormState): EducationRoute {
-  const selfReport = form.educationRouteSelfReport as EducationRoute | undefined;
-  if (selfReport === 'accredited') {
-    return form.onAccreditedList === 'yes' ? 'accredited' : 'unknown';
-  }
-  return selfReport ?? 'unknown';
+  const institution = form.institutionSelection as string | undefined;
+  if (institution && institution !== 'other') return 'accredited';
+  return (form.educationRouteOther as EducationRoute | undefined) ?? 'unknown';
 }
 
 export function buildAnswers(form: FormState): Answers {

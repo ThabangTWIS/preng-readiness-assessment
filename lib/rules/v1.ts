@@ -68,10 +68,13 @@ export const RESOLVED_EDUCATION_ROUTES = [
  * This is a coarse "have you studied at one of these" picker only — it does
  * not check discipline or graduation year against the specific accreditation
  * periods E-20-PE records (e.g. a pre-1993 UCT Electrical Engineering
- * graduate would not actually be covered). Selecting one of these still maps
- * to the self-reported 'accredited' route; it does not itself confirm
- * accreditation. Q3 (checked against ECSA's list directly) remains the real
- * cross-check.
+ * graduate would not actually be covered). Selecting one of these resolves
+ * directly to the scored 'accredited' route (see lib/answers.ts
+ * resolveEducationRoute) — there is deliberately no further question
+ * cross-checking discipline/year against ECSA's list. That mismatch risk is
+ * an accepted MVP limitation (product decision, made explicit here so it
+ * reads as intentional rather than an oversight), traded for a single-step
+ * institution picker instead of an extra confirmation question.
  */
 export const ACCREDITED_INSTITUTIONS = [
   { value: 'uct', label: 'University of Cape Town' },
