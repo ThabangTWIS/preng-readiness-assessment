@@ -78,9 +78,9 @@ export default function ResultPage() {
 
   if (stored === null) {
     return (
-      <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-4 p-4 text-center">
-        <p className="text-zinc-700">We couldn&apos;t find a result for this link on this device.</p>
-        <Link href="/assessment" className="rounded-lg bg-zinc-900 px-4 py-3 text-sm text-white">
+      <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-4 bg-white p-4 text-center">
+        <p className="text-navy">We couldn&apos;t find a result for this link on this device.</p>
+        <Link href="/assessment" className="rounded-lg bg-navy px-4 py-3 text-sm text-white">
           Start a new assessment
         </Link>
       </main>
@@ -98,13 +98,13 @@ export default function ResultPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col gap-6 p-4 pb-16">
+    <main className="mx-auto flex min-h-screen max-w-md flex-col gap-6 bg-white p-4 pb-16">
       <div className="pt-6">
-        <span className="inline-block rounded-full bg-zinc-900 px-3 py-1 text-xs font-medium text-white">
+        <span className="inline-block rounded-full bg-navy px-3 py-1 text-xs font-medium text-white">
           {result.state}
         </span>
-        <h1 className="mt-3 text-xl font-semibold text-zinc-900">{copy.heading}</h1>
-        <p className="mt-2 text-sm text-zinc-600">{copy.blurb}</p>
+        <h1 className="font-heading mt-3 text-xl font-bold text-navy">{copy.heading}</h1>
+        <p className="mt-2 text-sm text-navy/80">{copy.blurb}</p>
       </div>
 
       {topBlocker && (
@@ -117,8 +117,8 @@ export default function ResultPage() {
       <Disclaimer />
 
       {!unlocked ? (
-        <div className="rounded-lg border border-zinc-300 p-4">
-          <p className="text-sm font-medium text-zinc-900">
+        <div className="rounded-lg border border-navy/20 p-4">
+          <p className="text-sm font-medium text-navy">
             See your full breakdown, months-to-eligible, and action plan
           </p>
           <div className="mt-3 flex flex-col gap-2">
@@ -127,14 +127,14 @@ export default function ResultPage() {
               placeholder="you@example.com"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="rounded-lg border border-zinc-300 px-4 py-3 text-sm"
+              className="rounded-lg border border-zinc-300 px-4 py-3 text-sm text-foreground focus:border-blue focus:outline-none focus:ring-2 focus:ring-blue/40"
             />
-            <label className="flex items-start gap-2 text-xs text-zinc-600">
+            <label className="flex items-start gap-2 text-xs text-navy/70">
               <input
                 type="checkbox"
                 checked={consent}
                 onChange={(event) => setConsent(event.target.checked)}
-                className="mt-0.5 h-4 w-4"
+                className="mt-0.5 h-4 w-4 accent-navy"
               />
               I agree to receive my assessment result and related communications about
               Engineering Companion by email. My response data is stored separately from
@@ -144,7 +144,7 @@ export default function ResultPage() {
               type="button"
               onClick={handleUnlock}
               disabled={!email || !consent}
-              className="rounded-lg bg-zinc-900 px-4 py-3 text-sm text-white disabled:opacity-40"
+              className="rounded-lg bg-navy px-4 py-3 text-sm text-white disabled:opacity-40"
             >
               Unlock full report
             </button>
@@ -153,17 +153,17 @@ export default function ResultPage() {
       ) : (
         <div className="flex flex-col gap-4">
           <div>
-            <h2 className="text-sm font-semibold text-zinc-900">Evidence dimensions</h2>
+            <h2 className="font-heading text-sm font-bold text-navy">Evidence dimensions</h2>
             <div className="mt-2 flex flex-col gap-2">
               {Object.entries(result.dimensions).map(([dimension, value]) => (
                 <div key={dimension}>
-                  <div className="flex justify-between text-xs text-zinc-600">
+                  <div className="flex justify-between text-xs text-navy/70">
                     <span className="capitalize">{dimension.replace(/([A-Z])/g, ' $1')}</span>
                     <span>{Math.round(value * 100)}%</span>
                   </div>
-                  <div className="h-1.5 w-full rounded-full bg-zinc-200">
+                  <div className="h-1.5 w-full rounded-full bg-navy-tint">
                     <div
-                      className="h-1.5 rounded-full bg-zinc-900"
+                      className="h-1.5 rounded-full bg-blue"
                       style={{ width: `${value * 100}%` }}
                     />
                   </div>
@@ -173,7 +173,7 @@ export default function ResultPage() {
           </div>
 
           {result.monthsToEligible !== null && (
-            <p className="text-sm text-zinc-700">
+            <p className="text-sm text-navy/80">
               Estimated <strong>{result.monthsToEligible} month(s)</strong> until you meet the
               duration requirements.
             </p>
@@ -181,10 +181,10 @@ export default function ResultPage() {
 
           {result.blockers.length > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-zinc-900">Action plan</h2>
+              <h2 className="font-heading text-sm font-bold text-navy">Action plan</h2>
               <ul className="mt-2 flex flex-col gap-2">
                 {result.blockers.map((blocker) => (
-                  <li key={blocker.code} className="rounded-lg border border-zinc-200 p-3 text-sm text-zinc-700">
+                  <li key={blocker.code} className="rounded-lg border border-navy/15 p-3 text-sm text-navy/80">
                     {blocker.message}
                   </li>
                 ))}
@@ -195,7 +195,7 @@ export default function ResultPage() {
           {result.notes.length > 0 && (
             <div className="flex flex-col gap-2">
               {result.notes.map((note) => (
-                <p key={note.code} className="rounded-lg bg-zinc-100 p-3 text-xs text-zinc-600">
+                <p key={note.code} className="rounded-lg bg-navy-tint p-3 text-xs text-navy/70">
                   {note.message}
                 </p>
               ))}

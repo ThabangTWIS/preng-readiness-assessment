@@ -1,26 +1,31 @@
 @import "tailwindcss";
 
+/*
+ * Engineering Companion brand kit (Marketing/EC Thabang Email Signature.png):
+ * Dark Navy #001A3D, Light Blue #27C5DC. Pinned to light mode only —
+ * `color-scheme: light` plus no `prefers-color-scheme` override stops
+ * browsers/OSes with forced dark mode from auto-inverting colors, which
+ * was previously making text unreadable against a dark-inverted background.
+ */
 :root {
+  color-scheme: light;
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0a1628;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-navy: #001a3d;
+  --color-navy-tint: #eef1f6;
+  --color-blue: #27c5dc;
+  --color-blue-dark: #128a9c;
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-heading: Georgia, "Times New Roman", serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }

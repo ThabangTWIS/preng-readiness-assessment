@@ -42,15 +42,15 @@ export default function AssessmentPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col gap-6 p-4 pb-24">
+    <main className="mx-auto flex min-h-screen max-w-md flex-col gap-6 bg-white p-4 pb-24">
       <div className="pt-6">
-        <div className="h-1.5 w-full rounded-full bg-zinc-200">
+        <div className="h-1.5 w-full rounded-full bg-navy-tint">
           <div
-            className="h-1.5 rounded-full bg-zinc-900 transition-all"
+            className="h-1.5 rounded-full bg-blue transition-all"
             style={{ width: `${((step + 1) / QUESTIONS.length) * 100}%` }}
           />
         </div>
-        <p className="mt-2 text-xs text-zinc-500">
+        <p className="mt-2 text-xs text-navy/70">
           Question {step + 1} of {QUESTIONS.length}
         </p>
       </div>
@@ -62,7 +62,7 @@ export default function AssessmentPage() {
           type="button"
           onClick={() => setStep((s) => Math.max(0, s - 1))}
           disabled={step === 0}
-          className="rounded-lg border border-zinc-300 px-4 py-3 text-sm text-zinc-700 disabled:opacity-40"
+          className="rounded-lg border border-zinc-300 px-4 py-3 text-sm text-navy disabled:opacity-40"
         >
           Back
         </button>
@@ -70,7 +70,7 @@ export default function AssessmentPage() {
           type="button"
           onClick={handleNext}
           disabled={!canAdvance}
-          className="flex-1 rounded-lg bg-zinc-900 px-4 py-3 text-sm text-white disabled:opacity-40"
+          className="flex-1 rounded-lg bg-navy px-4 py-3 text-sm text-white disabled:opacity-40"
         >
           {isLastStep ? 'See my result' : 'Next'}
         </button>

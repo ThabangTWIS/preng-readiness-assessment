@@ -9,6 +9,9 @@ interface QuestionCardProps {
   onChange: (key: string, value: unknown) => void;
 }
 
+const INPUT_CLASS =
+  'rounded-lg border border-zinc-300 px-4 py-3 text-sm text-foreground focus:border-blue focus:outline-none focus:ring-2 focus:ring-blue/40';
+
 function isoToMonthInput(iso: unknown): string {
   return typeof iso === 'string' ? iso.slice(0, 7) : '';
 }
@@ -48,8 +51,8 @@ export function isQuestionAnswered(question: Question, form: Record<string, unkn
 export function QuestionCard({ question, form, onChange }: QuestionCardProps) {
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-lg font-semibold text-zinc-900">{question.label}</h2>
-      {question.helpText && <p className="text-sm text-zinc-500">{question.helpText}</p>}
+      <h2 className="font-heading text-lg font-bold text-navy">{question.label}</h2>
+      {question.helpText && <p className="text-sm text-navy/70">{question.helpText}</p>}
 
       {question.type === 'single_select' && (
         <div className="flex flex-col gap-2">
@@ -58,17 +61,17 @@ export function QuestionCard({ question, form, onChange }: QuestionCardProps) {
               key={option.value}
               type="button"
               onClick={() => onChange(question.key, option.value)}
-              className={`rounded-lg border px-4 py-3 text-left text-sm transition-colors ${
+              className={`rounded-lg border px-4 py-3 text-left text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue/40 ${
                 form[question.key] === option.value
-                  ? 'border-zinc-900 bg-zinc-900 text-white'
-                  : 'border-zinc-300 bg-white text-zinc-800 hover:border-zinc-400'
+                  ? 'border-navy bg-navy text-white'
+                  : 'border-zinc-300 bg-white text-foreground hover:border-blue'
               }`}
             >
               <div>{option.label}</div>
               {option.helpText && (
                 <div
                   className={`mt-1 text-xs ${
-                    form[question.key] === option.value ? 'text-zinc-300' : 'text-zinc-500'
+                    form[question.key] === option.value ? 'text-white/70' : 'text-navy/60'
                   }`}
                 >
                   {option.helpText}
@@ -89,10 +92,10 @@ export function QuestionCard({ question, form, onChange }: QuestionCardProps) {
               key={String(option.value)}
               type="button"
               onClick={() => onChange(question.key, option.value)}
-              className={`flex-1 rounded-lg border px-4 py-3 text-sm ${
+              className={`flex-1 rounded-lg border px-4 py-3 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue/40 ${
                 form[question.key] === option.value
-                  ? 'border-zinc-900 bg-zinc-900 text-white'
-                  : 'border-zinc-300 bg-white text-zinc-800 hover:border-zinc-400'
+                  ? 'border-navy bg-navy text-white'
+                  : 'border-zinc-300 bg-white text-foreground hover:border-blue'
               }`}
             >
               {option.label}
@@ -106,7 +109,7 @@ export function QuestionCard({ question, form, onChange }: QuestionCardProps) {
           type="month"
           value={isoToMonthInput(form[question.key])}
           onChange={(event) => onChange(question.key, monthInputToIso(event.target.value))}
-          className="rounded-lg border border-zinc-300 px-4 py-3 text-sm"
+          className={INPUT_CLASS}
         />
       )}
 
@@ -115,7 +118,7 @@ export function QuestionCard({ question, form, onChange }: QuestionCardProps) {
           type="text"
           value={(form[question.key] as string) ?? ''}
           onChange={(event) => onChange(question.key, event.target.value)}
-          className="rounded-lg border border-zinc-300 px-4 py-3 text-sm"
+          className={INPUT_CLASS}
         />
       )}
 
@@ -124,13 +127,13 @@ export function QuestionCard({ question, form, onChange }: QuestionCardProps) {
           {question.items.map((item) => (
             <label
               key={item.key}
-              className="flex items-center gap-3 rounded-lg border border-zinc-300 px-4 py-3 text-sm"
+              className="flex items-center gap-3 rounded-lg border border-zinc-300 px-4 py-3 text-sm text-foreground"
             >
               <input
                 type="checkbox"
                 checked={Boolean(form[item.key])}
                 onChange={(event) => onChange(item.key, event.target.checked)}
-                className="h-4 w-4"
+                className="h-4 w-4 accent-navy"
               />
               {item.label}
             </label>
@@ -142,13 +145,13 @@ export function QuestionCard({ question, form, onChange }: QuestionCardProps) {
         <div className="flex flex-col gap-3">
           {question.fields.map((field) => (
             <div key={field.key} className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-zinc-600">{field.label}</label>
+              <label className="text-xs font-medium text-navy/70">{field.label}</label>
               {field.type === 'text' && (
                 <input
                   type="text"
                   value={(form[field.key] as string) ?? ''}
                   onChange={(event) => onChange(field.key, event.target.value)}
-                  className="rounded-lg border border-zinc-300 px-4 py-3 text-sm"
+                  className={INPUT_CLASS}
                 />
               )}
               {field.type === 'month' && (
@@ -156,14 +159,14 @@ export function QuestionCard({ question, form, onChange }: QuestionCardProps) {
                   type="month"
                   value={isoToMonthInput(form[field.key])}
                   onChange={(event) => onChange(field.key, monthInputToIso(event.target.value))}
-                  className="rounded-lg border border-zinc-300 px-4 py-3 text-sm"
+                  className={INPUT_CLASS}
                 />
               )}
               {field.type === 'single_select' && (
                 <select
                   value={(form[field.key] as string) ?? ''}
                   onChange={(event) => onChange(field.key, event.target.value)}
-                  className="rounded-lg border border-zinc-300 px-4 py-3 text-sm"
+                  className={INPUT_CLASS}
                 >
                   <option value="" disabled>
                     Select…
@@ -213,7 +216,7 @@ function PhaseListInput({
       {value.map((phase, index) => (
         <div key={index} className="flex flex-col gap-2 rounded-lg border border-zinc-300 p-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-zinc-600">Phase {index + 1}</span>
+            <span className="text-xs font-medium text-navy/70">Phase {index + 1}</span>
             <button
               type="button"
               onClick={() => removePhase(index)}
@@ -224,32 +227,32 @@ function PhaseListInput({
           </div>
           <div className="flex gap-2">
             <div className="flex flex-1 flex-col gap-1">
-              <label className="text-xs text-zinc-600">Start</label>
+              <label className="text-xs text-navy/70">Start</label>
               <input
                 type="month"
                 value={isoToMonthInput(phase.startDate)}
                 onChange={(event) => updatePhase(index, { startDate: monthInputToIso(event.target.value) })}
-                className="rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+                className={INPUT_CLASS}
               />
             </div>
             <div className="flex flex-1 flex-col gap-1">
-              <label className="text-xs text-zinc-600">End (blank = ongoing)</label>
+              <label className="text-xs text-navy/70">End (blank = ongoing)</label>
               <input
                 type="month"
                 value={isoToMonthInput(phase.endDate)}
                 onChange={(event) =>
                   updatePhase(index, { endDate: event.target.value ? monthInputToIso(event.target.value) : null })
                 }
-                className="rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+                className={INPUT_CLASS}
               />
             </div>
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-zinc-600">Responsibility level</label>
+            <label className="text-xs text-navy/70">Responsibility level</label>
             <select
               value={phase.level}
               onChange={(event) => updatePhase(index, { level: event.target.value as CareerPhase['level'] })}
-              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              className={INPUT_CLASS}
             >
               {levelOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -263,7 +266,7 @@ function PhaseListInput({
       <button
         type="button"
         onClick={() => onChange([...value, emptyPhase()])}
-        className="rounded-lg border border-dashed border-zinc-400 px-4 py-3 text-sm text-zinc-600 hover:border-zinc-600"
+        className="rounded-lg border border-dashed border-navy/40 px-4 py-3 text-sm text-navy/70 hover:border-navy focus:outline-none focus:ring-2 focus:ring-blue/40"
       >
         + Add phase
       </button>
