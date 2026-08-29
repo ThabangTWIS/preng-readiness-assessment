@@ -8,9 +8,10 @@ export default function Home() {
       <Image
         src="/engineering-companion-logo.png"
         alt="Engineering Companion"
-        width={220}
-        height={92}
+        width={1336}
+        height={557}
         priority
+        className="h-auto w-full"
       />
 
       <div>
