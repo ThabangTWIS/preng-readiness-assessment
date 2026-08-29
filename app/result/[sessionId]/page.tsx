@@ -172,8 +172,6 @@ export default function ResultPage() {
         </div>
       )}
 
-      <Disclaimer />
-
       <div className="rounded-lg border border-navy/20 bg-navy-tint p-4">
         <h2 className="font-heading text-sm font-bold text-navy">Your next step</h2>
         <p className="mt-2 text-sm text-navy/80">{nextStep.body}</p>
@@ -188,7 +186,7 @@ export default function ResultPage() {
           <div className="mt-3 flex flex-col gap-2">
             <input
               type="email"
-              placeholder="you@example.com"
+              placeholder="FuturePr@example.com"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               className="rounded-lg border border-zinc-300 px-4 py-3 text-sm text-foreground focus:border-blue focus:outline-none focus:ring-2 focus:ring-blue/40"
@@ -267,6 +265,8 @@ export default function ResultPage() {
           )}
         </div>
       )}
+
+      <Disclaimer />
     </main>
   );
 }
