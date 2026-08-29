@@ -60,6 +60,39 @@ export const RESOLVED_EDUCATION_ROUTES = [
   'substantially_equivalent',
 ] as const;
 
+/**
+ * Institutions with an ECSA-accredited BEng/BSc(Eng)/BIng programme per
+ * E-20-PE Rev 33 (19 August 2025), List A ("Accredited Degrees Meeting the
+ * Educational Requirements... as Result of an Accreditation Visit").
+ *
+ * This is a coarse "have you studied at one of these" picker only — it does
+ * not check discipline or graduation year against the specific accreditation
+ * periods E-20-PE records (e.g. a pre-1993 UCT Electrical Engineering
+ * graduate would not actually be covered). Selecting one of these still maps
+ * to the self-reported 'accredited' route; it does not itself confirm
+ * accreditation. Q3 (checked against ECSA's list directly) remains the real
+ * cross-check.
+ */
+export const ACCREDITED_INSTITUTIONS = [
+  { value: 'uct', label: 'University of Cape Town' },
+  {
+    value: 'ukzn',
+    label: 'University of KwaZulu-Natal',
+    helpText: 'Formerly University of Natal or University of Durban-Westville',
+  },
+  { value: 'nmu', label: 'Nelson Mandela University' },
+  {
+    value: 'nwu',
+    label: 'North-West University',
+    helpText: 'Formerly Potchefstroom University for Christian Higher Education',
+  },
+  { value: 'up', label: 'University of Pretoria' },
+  { value: 'uj', label: 'University of Johannesburg', helpText: 'Formerly Rand Afrikaans University' },
+  { value: 'sun', label: 'Stellenbosch University' },
+  { value: 'wits', label: 'University of the Witwatersrand' },
+  { value: 'iie_monash', label: 'The Independent Institute of Education (IIE) / Monash South Africa' },
+] as const;
+
 /** R-03 Table 2, "For registration as a professional engineer" column. */
 export const ARTEFACTS = [
   { code: 'application_form', label: 'Online application form' },

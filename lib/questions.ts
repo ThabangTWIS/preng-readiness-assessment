@@ -1,4 +1,4 @@
-import { RESPONSIBILITY_LEVELS, THIN_EVIDENCE_OUTCOMES } from './rules/v1';
+import { ACCREDITED_INSTITUTIONS, RESPONSIBILITY_LEVELS, THIN_EVIDENCE_OUTCOMES } from './rules/v1';
 
 /**
  * Question definitions as data — see build-brief.md Phase 2 and
@@ -183,16 +183,34 @@ export const QUESTIONS: Question[] = [
     ],
   },
   {
-    id: 'q2_institution_and_date',
+    id: 'q2_institution',
     section: 'eligibility',
-    label: 'Which institution did you qualify from, and when?',
+    key: 'institutionSelection',
+    type: 'single_select',
+    label: 'Which institution did you qualify from?',
+    helpText:
+      "This list (from ECSA's E-20-PE) is just to help us tailor guidance. Picking one doesn't itself confirm accreditation of your specific programme and year.",
+    options: [
+      ...ACCREDITED_INSTITUTIONS.map((institution) => ({
+        value: institution.value,
+        label: institution.label,
+        helpText: 'helpText' in institution ? institution.helpText : undefined,
+      })),
+      {
+        value: 'other',
+        label: 'Other / not listed',
+        revealTextField: { key: 'institutionNameOther', placeholder: 'Institution name' },
+      },
+    ],
+  },
+  {
+    id: 'q2b_qualification_date',
+    section: 'eligibility',
+    key: 'qualificationDate',
+    type: 'month',
+    label: 'Month and year you graduated (your qualification was formally conferred)',
     helpText:
       'ECSA counts your training and experience period from the date you met the educational requirement, not from when you started working.',
-    type: 'group',
-    fields: [
-      { key: 'institutionName', type: 'text', label: 'Institution' },
-      { key: 'qualificationDate', type: 'month', label: 'Month and year you graduated (your qualification was formally conferred)' },
-    ],
   },
   {
     id: 'q3_accredited_list_check',
