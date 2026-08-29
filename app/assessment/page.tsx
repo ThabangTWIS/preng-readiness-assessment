@@ -21,17 +21,27 @@ export default function AssessmentPage() {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  function handleNext() {
-    if (!canAdvance) return;
+  function goToNextStep(currentForm: Record<string, unknown>) {
     if (isLastStep) {
-      submit();
+      submit(currentForm);
     } else {
       setStep((s) => s + 1);
     }
   }
 
-  function submit() {
-    const answers = buildAnswers(form);
+  function handleNext() {
+    if (!canAdvance) return;
+    goToNextStep(form);
+  }
+
+  // Auto-advance for single_select/boolean answers: merge locally rather
+  // than reading `form`, since the onChange update hasn't landed yet.
+  function handleAutoAdvance(key: string, value: unknown) {
+    goToNextStep({ ...form, [key]: value });
+  }
+
+  function submit(finalForm: Record<string, unknown>) {
+    const answers = buildAnswers(finalForm);
     const result = score(answers, RulesV1, new Date());
     const sessionId = crypto.randomUUID();
     sessionStorage.setItem(
@@ -42,7 +52,7 @@ export default function AssessmentPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col gap-6 bg-white p-4 pb-24">
+    <main className="mx-auto flex min-h-screen max-w-md flex-col gap-6 bg-white p-4">
       <div className="pt-6">
         <div className="h-1.5 w-full rounded-full bg-navy-tint">
           <div
@@ -55,9 +65,14 @@ export default function AssessmentPage() {
         </p>
       </div>
 
-      <QuestionCard question={question} form={form} onChange={handleChange} />
+      <QuestionCard
+        question={question}
+        form={form}
+        onChange={handleChange}
+        onAutoAdvance={handleAutoAdvance}
+      />
 
-      <div className="fixed inset-x-0 bottom-0 mx-auto flex max-w-md gap-3 border-t border-zinc-200 bg-white p-4">
+      <div className="flex gap-3 pb-8">
         <button
           type="button"
           onClick={() => setStep((s) => Math.max(0, s - 1))}

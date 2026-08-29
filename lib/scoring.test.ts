@@ -29,7 +29,7 @@ function makeAnswers(overrides: Partial<Answers> = {}): Answers {
 }
 
 function levelEPhase(startDate: string, endDate: string | null): CareerPhase {
-  return { startDate, endDate, level: 'E' };
+  return { startDate, endDate, levels: ['E'] };
 }
 
 describe('score', () => {
@@ -51,7 +51,7 @@ describe('score', () => {
     const result = score(
       makeAnswers({
         qualificationDate: '2024-07-15',
-        careerPhases: [{ startDate: '2024-07-15', endDate: null, level: 'A' }],
+        careerPhases: [{ startDate: '2024-07-15', endDate: null, levels: ['A'] }],
       }),
       RulesV1,
       EVALUATED_AT,
@@ -65,7 +65,7 @@ describe('score', () => {
       makeAnswers({
         qualificationDate: '2024-01-15',
         careerPhases: [
-          { startDate: '2024-01-15', endDate: '2025-07-15', level: 'C' },
+          { startDate: '2024-01-15', endDate: '2025-07-15', levels: ['C'] },
           levelEPhase('2025-07-15', null),
         ],
         tesCompiled: true,
@@ -95,7 +95,7 @@ describe('score', () => {
         qualificationDate: '2021-01-15',
         careerPhases: [
           levelEPhase('2021-01-15', '2023-01-15'),
-          { startDate: '2023-01-15', endDate: null, level: 'D' },
+          { startDate: '2023-01-15', endDate: null, levels: ['D'] },
         ],
         tesCompiled: true,
         terCoverage: 'most',

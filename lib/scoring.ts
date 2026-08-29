@@ -11,7 +11,8 @@ export interface CareerPhase {
   startDate: string;
   /** ISO date (yyyy-mm-dd), or null if this phase is ongoing. */
   endDate: string | null;
-  level: ResponsibilityLevelCode;
+  /** Non-empty, contiguous on the A-E ladder (e.g. ['D', 'E'], never ['A', 'C']). */
+  levels: ResponsibilityLevelCode[];
 }
 
 export type GradeLevel = 'none' | 'weak' | 'moderate' | 'strong';
@@ -30,7 +31,8 @@ export interface Answers {
   erStatus: ArtefactProgress;
   ipdRecordMaintained: boolean;
 
-  refereesIdentifiedCount: 0 | 1 | 2;
+  /** ECSA requires 2; more can be recorded but doesn't score any higher. */
+  refereesIdentifiedCount: number;
   hasRegisteredPrEngReferee: boolean;
   supervisorWillingToSign: boolean;
   mentorAvailable: boolean;
@@ -107,7 +109,7 @@ function parseIsoDate(iso: string): Date {
 
 function monthsAtLevelE(careerPhases: CareerPhase[], evaluatedAt: Date): number {
   return careerPhases
-    .filter((phase) => phase.level === 'E')
+    .filter((phase) => phase.levels.includes('E'))
     .reduce((total, phase) => {
       const start = parseIsoDate(phase.startDate);
       const end = phase.endDate ? parseIsoDate(phase.endDate) : evaluatedAt;
@@ -150,7 +152,7 @@ function computeDimensions(answers: Answers): Dimensions {
   ]);
 
   const supportStructure = average([
-    answers.refereesIdentifiedCount / 2,
+    Math.min(answers.refereesIdentifiedCount, 2) / 2,
     answers.hasRegisteredPrEngReferee ? 1 : 0,
     answers.supervisorWillingToSign ? 1 : 0,
     answers.mentorAvailable ? 1 : 0,

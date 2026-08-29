@@ -15,10 +15,16 @@ import { RESPONSIBILITY_LEVELS, THIN_EVIDENCE_OUTCOMES } from './rules/v1';
  * - Q13 bundles "mentor available" with "supervisor willing to sign" (both
  *   are Support structure inputs per §6; the brief's list only named the
  *   mentor).
- * - Q19 (administrative checklist) was added — the brief's list had no
+ * - Q18 (administrative checklist) was added — the brief's list had no
  *   question for the Administrative dimension's five inputs at all, which
  *   would otherwise always score 0 and cap every verdict at the lowest
  *   evidence band.
+ *
+ * Note on "period" vs "phase": the user-facing copy below says "period"
+ * throughout (per user feedback). The underlying type/field names
+ * (`CareerPhase`, `careerPhases`, question type `'phase_list'`) still say
+ * "phase" — renaming those touches lib/scoring.ts and its tests for no
+ * user-visible benefit, so only the copy changed.
  */
 
 export type QuestionSection =
@@ -33,6 +39,13 @@ export interface SelectOption {
   value: string;
   label: string;
   helpText?: string;
+  /** When this option is selected, reveal a free-text field writing to `key`. */
+  revealTextField?: { key: string; placeholder?: string };
+}
+
+export interface QuestionExample {
+  label: string;
+  text: string;
 }
 
 interface QuestionBase {
@@ -40,6 +53,12 @@ interface QuestionBase {
   section: QuestionSection;
   label: string;
   helpText?: string;
+  /** Rendered as a bulleted list; use instead of, or alongside, helpText. */
+  helpBullets?: string[];
+  /** Short worked examples shown above the answer options. */
+  examples?: QuestionExample[];
+  /** A "full guide" pointer that isn't a real link yet — rendered disabled/greyed. */
+  learnMoreText?: string;
 }
 
 export interface SingleSelectQuestion extends QuestionBase {
@@ -113,7 +132,7 @@ const GRADE_OPTIONS: SelectOption[] = [
 const OUTCOME_LABELS: Record<(typeof THIN_EVIDENCE_OUTCOMES)[number], { label: string; help: string }> = {
   C6: {
     label: 'Recognising and addressing foreseeable impacts (Outcome C6)',
-    help: 'ECSA notes this outcome may not be covered by your Training and Experience Reports — it usually has to come through in the Engineering Report or interview instead.',
+    help: 'ECSA notes this outcome may not be covered by your Training and Experience Reports. It usually has to come through in the Engineering Report or interview instead.',
   },
   D8: {
     label: 'Conducting engineering activities ethically (Outcome D8)',
@@ -125,9 +144,11 @@ const OUTCOME_LABELS: Record<(typeof THIN_EVIDENCE_OUTCOMES)[number], { label: s
   },
   E11: {
     label: 'Undertaking professional development activities (Outcome E11)',
-    help: 'Not covered by TERs at all — carried by your IPD record, Engineering Report and Referee Reports.',
+    help: 'Not covered by TERs at all. Carried by your IPD record, Engineering Report and Referee Reports.',
   },
 };
+
+const OUTCOME_LEARN_MORE = 'Full guide with examples: (coming soon)';
 
 export const QUESTIONS: Question[] = [
   // Eligibility
@@ -151,18 +172,26 @@ export const QUESTIONS: Question[] = [
         value: 'substantially_equivalent',
         label: 'A different qualification, which ECSA has evaluated as substantially equivalent',
       },
-      { value: 'unknown', label: "I'm not sure / none of these" },
+      {
+        value: 'unknown',
+        label: 'Other / not sure',
+        revealTextField: {
+          key: 'otherQualificationName',
+          placeholder: 'e.g. BSc Mechanical Engineering, University of X',
+        },
+      },
     ],
   },
   {
     id: 'q2_institution_and_date',
     section: 'eligibility',
     label: 'Which institution did you qualify from, and when?',
-    helpText: 'ECSA counts your training and experience period from the date you met the educational requirement, not from when you started working.',
+    helpText:
+      'ECSA counts your training and experience period from the date you met the educational requirement, not from when you started working.',
     type: 'group',
     fields: [
       { key: 'institutionName', type: 'text', label: 'Institution' },
-      { key: 'qualificationDate', type: 'month', label: 'Month and year qualified' },
+      { key: 'qualificationDate', type: 'month', label: 'Month and year you graduated (your qualification was formally conferred)' },
     ],
   },
   {
@@ -177,16 +206,21 @@ export const QUESTIONS: Question[] = [
 
   // Experience and responsibility
   {
-    id: 'q4_career_phases',
+    id: 'q4_career_periods',
     section: 'experience',
     key: 'careerPhases',
     type: 'phase_list',
-    label: 'Break your career into phases and place each one on the responsibility ladder',
-    helpText:
-      'A new phase starts when your work environment, type of work, or level of responsibility changed — including a promotion or change of employer.',
+    label: 'Break your career into periods and place each one on the responsibility ladder',
+    helpBullets: [
+      'Your work environment changed',
+      'The type of work you did changed',
+      'Your level of responsibility changed, including a promotion',
+      'You changed employer, or your training/employment was interrupted',
+    ],
+    learnMoreText: 'Full guide to responsibility levels, with examples: (coming soon)',
     levelOptions: RESPONSIBILITY_LEVELS.map((level) => ({
       value: level.code,
-      label: `${level.code} — ${level.label}`,
+      label: `${level.code}: ${level.label}`,
     })),
   },
   {
@@ -196,7 +230,17 @@ export const QUESTIONS: Question[] = [
     type: 'single_select',
     label:
       'In your current role, are you responsible for the outcomes of significant parts of one or more complex engineering activities?',
-    helpText: 'This is ECSA’s definition of "performing" at Level E — the level required for registration.',
+    helpText: 'This is ECSA\'s definition of "performing" at Level E, the level required for registration.',
+    examples: [
+      {
+        label: 'Consultancy',
+        text: 'You sign off a design package for a client project, with only spot-checks from a senior engineer.',
+      },
+      {
+        label: 'Contractor',
+        text: 'You take responsibility for method statements and sign-off on a site works package.',
+      },
+    ],
     options: YES_NO_NOT_SURE,
   },
 
@@ -206,14 +250,14 @@ export const QUESTIONS: Question[] = [
     section: 'evidence',
     key: 'tesCompiled',
     type: 'boolean',
-    label: 'Have you compiled a Training and Experience Summary (TES) covering every phase?',
+    label: 'Have you compiled a Training and Experience Summary (TES) covering every period?',
   },
   {
     id: 'q7_ter_coverage',
     section: 'evidence',
     key: 'terCoverage',
     type: 'single_select',
-    label: 'How many of your phases have a written Training and Experience Report (TER)?',
+    label: 'How many of your periods have a written Training and Experience Report (TER)?',
     options: [
       { value: 'none', label: 'None yet' },
       { value: 'some', label: 'Some of them' },
@@ -226,7 +270,7 @@ export const QUESTIONS: Question[] = [
     section: 'evidence',
     key: 'tersSignedBySupervisor',
     type: 'boolean',
-    label: 'Are your TERs signed by the supervisor you had at the time?',
+    label: 'Have the TERs you\'ve already written been signed by the supervisor you had at the time?',
   },
   {
     id: 'q9_er_status',
@@ -260,6 +304,7 @@ export const QUESTIONS: Question[] = [
       { value: '0', label: 'None yet' },
       { value: '1', label: 'One' },
       { value: '2', label: 'Two' },
+      { value: '3', label: 'Three or more' },
     ],
   },
   {
@@ -267,8 +312,9 @@ export const QUESTIONS: Question[] = [
     section: 'support',
     key: 'hasRegisteredPrEngReferee',
     type: 'single_select',
-    label: 'Is at least one of them registered with ECSA as a Professional Engineer or Professional Certificated Engineer?',
-    helpText: 'This is a common, invisible blocker — worth confirming directly rather than assuming.',
+    label:
+      'Is at least one of the referees you just named registered with ECSA as a Professional Engineer or Professional Certificated Engineer?',
+    helpText: 'This is a common, invisible blocker. Worth confirming directly rather than assuming.',
     options: YES_NO_NOT_SURE,
   },
   {
@@ -278,7 +324,10 @@ export const QUESTIONS: Question[] = [
     label: 'Which of these do you currently have in place?',
     items: [
       { key: 'mentorAvailable', label: 'A registered mentor available to verify my application before submission' },
-      { key: 'supervisorWillingToSign', label: 'A supervisor willing to sign my TERs and checklist' },
+      {
+        key: 'supervisorWillingToSign',
+        label: 'My current supervisor is willing to sign the Appendix J checklist and any TERs that still need it',
+      },
     ],
   },
 
@@ -291,6 +340,7 @@ export const QUESTIONS: Question[] = [
       type: 'single_select',
       label: OUTCOME_LABELS[outcome].label,
       helpText: OUTCOME_LABELS[outcome].help,
+      learnMoreText: OUTCOME_LEARN_MORE,
       options: GRADE_OPTIONS,
     }),
   ),

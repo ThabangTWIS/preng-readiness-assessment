@@ -22,9 +22,9 @@ function asTerCoverage(value: unknown): TerCoverage {
   return value === 'some' || value === 'most' || value === 'all' ? value : 'none';
 }
 
-function asRefereeCount(value: unknown): 0 | 1 | 2 {
+function asRefereeCount(value: unknown): number {
   const n = Number(value);
-  return n === 1 || n === 2 ? n : 0;
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
 }
 
 /**
