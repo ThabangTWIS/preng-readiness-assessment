@@ -146,10 +146,21 @@ export default function ResultPage() {
   const nextStep = NEXT_STEP[result.state];
   const topBlocker = result.blockers[0] ?? result.failedGates[0];
 
-  function handleUnlock() {
+  async function handleUnlock() {
     if (!consent || !email) return;
-    // TODO(Phase 4): POST to /api/lead once Supabase persistence exists.
-    setUnlocked(true);
+    try {
+      await fetch('/api/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: params.sessionId, email, consent, state: result.state }),
+      });
+    } catch {
+      // The report unlocks regardless — see finally below. The user's own
+      // result is already sitting in their own sessionStorage; a lead
+      // capture hiccup shouldn't gate their own read of their own result.
+    } finally {
+      setUnlocked(true);
+    }
   }
 
   return (
@@ -199,8 +210,9 @@ export default function ResultPage() {
                 className="mt-0.5 h-4 w-4 accent-navy"
               />
               I agree that any follow-up about my results or Engineering Companion will be
-              sent to this email address, stored separately from my assessment answers, and
-              that I can unsubscribe at any time.
+              sent to this email address, stored separately from my assessment answers, kept
+              for up to 24 months unless I unsubscribe or ask for it to be deleted sooner,
+              and that I can unsubscribe at any time.
             </label>
             <button
               type="button"

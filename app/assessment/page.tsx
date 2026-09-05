@@ -42,12 +42,23 @@ export default function AssessmentPage() {
 
   function submit(finalForm: Record<string, unknown>) {
     const answers = buildAnswers(finalForm);
-    const result = score(answers, RulesV1, new Date());
+    const evaluatedAt = new Date();
+    const result = score(answers, RulesV1, evaluatedAt);
     const sessionId = crypto.randomUUID();
     sessionStorage.setItem(
       `preng-result:${sessionId}`,
-      JSON.stringify({ answers, result, computedAt: new Date().toISOString() }),
+      JSON.stringify({ answers, result, computedAt: evaluatedAt.toISOString() }),
     );
+
+    // Fire-and-forget: archiving to Supabase must never delay or block the
+    // user from seeing their own result, which is already safely in
+    // sessionStorage regardless of whether this call succeeds.
+    fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, answers, evaluatedAt: evaluatedAt.toISOString() }),
+    }).catch(() => {});
+
     router.push(`/result/${sessionId}`);
   }
 
