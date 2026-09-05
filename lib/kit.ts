@@ -27,12 +27,24 @@ async function kitPost(path: string, body: Record<string, unknown>): Promise<voi
   }
 }
 
-/** Subscribes (creating the subscriber if needed) to a single Kit form. */
-export function subscribeToKitForm(email: string, formId: string): Promise<void> {
-  return kitPost(`/forms/${formId}/subscribers`, { email_address: email });
+/**
+ * Creates the subscriber if they don't already exist (upsert, keyed on
+ * email). Both `subscribeToKitForm` and `tagSubscriber` below require the
+ * subscriber to already exist — Kit's API 404s otherwise — so this must be
+ * called first.
+ */
+function createSubscriber(email: string): Promise<void> {
+  return kitPost('/subscribers', { email_address: email });
 }
 
-/** Applies a tag to a subscriber (creating the subscriber if needed). */
-export function tagSubscriber(email: string, tagId: string): Promise<void> {
-  return kitPost(`/tags/${tagId}/subscribers`, { email_address: email });
+/** Subscribes an existing (or newly-created) subscriber to a single Kit form. */
+export async function subscribeToKitForm(email: string, formId: string): Promise<void> {
+  await createSubscriber(email);
+  await kitPost(`/forms/${formId}/subscribers`, { email_address: email });
+}
+
+/** Applies a tag to an existing (or newly-created) subscriber. */
+export async function tagSubscriber(email: string, tagId: string): Promise<void> {
+  await createSubscriber(email);
+  await kitPost(`/tags/${tagId}/subscribers`, { email_address: email });
 }
